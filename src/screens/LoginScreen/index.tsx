@@ -1,30 +1,55 @@
-import { Dimensions, Image, Text, TouchableOpacity, View, TextInput, StatusBar } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "../../utils/constants";
-import BottomSheet from "../../components/molecules/BottomSheet";
 import { useEffect, useState } from "react";
-import styles from "./styles";
+import { Image, Modal, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Gap from "../../components/atoms/Gap";
+import BottomSheet from "../../components/molecules/BottomSheet";
+import { colors } from "../../utils/constants";
+import styles from "./styles";
+import ReactNativeBiometrics from 'react-native-biometrics';
+import { checkAuthExist, checkPasswordExist, createAuth, createAuthTable } from "../../services/auth.service";
+import CryptoJS from "crypto-js";
+import { useDispatch } from "react-redux"
+import { setAuth } from "../../redux/reducers/authReducer";
+import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
-    const [isModalActive, setIsModalActive] = useState<Boolean>(false);
-    const [isBiometric, setIsBiometric] = useState<Boolean>(true);
-    const [isError, setIsError] = useState<Boolean>(false);
-    // const [password, setPassword] = useState<String>('');
+    const dispatch = useDispatch();
+    const [isModalActive, setIsModalActive] = useState<boolean>(false);
+    const [isBiometric, setIsBiometric] = useState<boolean>(true);
+    const [isError, setIsError] = useState<boolean>(false);
+    const [password, setPassword] = useState<string>('');
+    const [hasPassword, setHasPassword] = useState<boolean>(true);
+    const [firstTimePw, setFirstTimePw] = useState<string>('');
 
-    const checkPassword = (pw: string) => {
-        console.log(pw);
-        if (pw.length > 3) {
-            if (pw === 'test') {
+    const navigationUse = useNavigation<any>();
+    // const rnBiometrics = new ReactNativeBiometrics()
+
+    const checkPassword = () => {
+        checkPasswordExist({ password: CryptoJS.SHA256(password).toString(), type: !isBiometric ? 'password' : 'biometric' }).then((dt) => {
+            console.log(dt, 'dtnya');
+            if (dt <= 0) setIsError(true);
+            else {
                 setIsModalActive(false);
-                navigation.navigate('HomeScreen');
-            } else {
-                setIsError(true);
+                setIsError(false);
+                dispatch(setAuth({ secret: password }))
+                navigationUse.reset({ index: 0, routes: [{ name: 'HomeScreen' }] });
             }
-        } else {
-            setIsError(false);
-        }
+        })
     }
+
+    const createPassword = () => {
+        createAuth({ password: CryptoJS.SHA256(firstTimePw).toString(), type: 'password' }).then(() => {
+            setHasPassword(true);
+        })
+    }
+
+    useEffect(() => {
+        createAuthTable().then(() => {
+            checkAuthExist({ type: 'password' }).
+                then((dt: number) => { setHasPassword(dt > 0) }).
+                catch((e) => { console.log(e) });
+        });
+    }, [])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -41,6 +66,34 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={styles.btnMainTextContainer}>Getting Started</Text>
                 </TouchableOpacity>
             </View>
+            {/* first time password */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={!hasPassword}
+                onRequestClose={() => { }}>
+                <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => { }} style={{ position: 'absolute', opacity: 0.2, backgroundColor: 'black', flex: 1, height: '100%', width: '100%' }}>
+                    </TouchableOpacity>
+                    <View style={{ opacity: 1, backgroundColor: 'white', padding: 25, borderRadius: 10, ...styles.shadow }}>
+                        <Text style={{ textAlign: 'center', fontSize: 16 }}>Please input Your First time password</Text>
+                        <Gap h={20} />
+                        <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }}>
+                            <Text style={styles.textInputLabel}> Create Password</Text>
+                            <View style={styles.textInputInnerContainer}>
+                                <TextInput style={{ minHeight: 40 }} secureTextEntry={true} placeholder="your first time password" onChangeText={(pw) => { setFirstTimePw(pw) }} />
+                            </View>
+                            <Text style={styles.textInputError}>{isError ? 'failed to authenticate' : ''}</Text>
+                        </View>
+                        <TouchableOpacity style={{ paddingHorizontal: 10, borderRadius: 10, backgroundColor: colors.secondary }} onPress={() => createPassword()} >
+                            <View>
+                                <Text style={{ color: 'white', textAlign: 'center', paddingHorizontal: 20, paddingVertical: 10 }}>Create Password</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
             <BottomSheet visible={isModalActive} onRequestClose={setIsModalActive} onDismiss={setIsModalActive} transparent={true}>
                 <View style={styles.bottomSheetContainer}>
                     {isBiometric ?
@@ -68,24 +121,28 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                             <Text style={styles.textTitle}>Authenticate using password</Text>
                             <View style={{ flex: 1, flexDirection: 'column', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
                                 <View style={styles.textInputContainer}>
-                                    <Text style={styles.textInputLabel}>Password</Text>
                                     <View style={styles.textInputInnerContainer}>
-                                        <TextInput style={{ minHeight: 40 }} secureTextEntry={true} placeholder="your first time password" onChangeText={(pw) => { checkPassword(pw) }} />
+                                        <TextInput value={password} style={{ minHeight: 40 }} secureTextEntry={true} placeholder="your first time password" onChangeText={(pw) => { setPassword(pw) }} />
                                     </View>
                                     <Text style={styles.textInputError}>{isError ? 'failed to authenticate' : ''}</Text>
                                 </View>
+                                <TouchableOpacity style={{ paddingHorizontal: 10, borderRadius: 10, backgroundColor: colors.secondary }} onPress={() => checkPassword()} >
+                                    <View>
+                                        <Text style={{ color: 'white', textAlign: 'center', paddingHorizontal: 20, paddingVertical: 10 }}>LOGIN</Text>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                             <View>
+                                <Gap h={10} />
                                 <Text style={{ ...styles.textTitle, textAlign: 'center' }}>OR</Text>
                                 <Gap h={10} />
-                                <TouchableOpacity style={styles.btnContainer} onPress={() => setIsBiometric(true)} >
+                                <TouchableOpacity style={styles.btnContainer} onPress={() => { setIsBiometric(true); setIsError(false); setPassword('') }} >
                                     <Text style={styles.btnText}>USING BIOMETRIC</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                     }
                 </View>
-
             </BottomSheet>
         </SafeAreaView>
     )

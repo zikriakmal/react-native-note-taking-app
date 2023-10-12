@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   backgroundContainer: {position: 'absolute', bottom: 0},
   backgroundInner1: {
     backgroundColor: colors.primary,
-    height: 65,
+    height: 100,
     width: '100%',
   },
   backgroundInner2: {
