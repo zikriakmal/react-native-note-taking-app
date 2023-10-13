@@ -24,8 +24,7 @@ const AddNoteScreen = ({ route, navigation }: { route: any, navigation: any }) =
             subnote: CryptoJS.AES.encrypt(subnote, key).toString(),
             date: new Date()
         }
-        console.log(payload);
-        console.log(route.params?.id, 'id');
+        
         if (route.params?.from !== 'edit') {
             createNote({ note: payload.note, subnote: payload.subnote }).then(() => {
                 listNotes().then((dt: any) => {

@@ -21,9 +21,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     const dispatch = useDispatch();
     const key = auth.secret;
 
-    useEffect(() => {
-        onRefresh();
-    }, [])
+    useEffect(() => onRefresh(), [auth?.secret])
 
     const onRefresh = () => {
         setRefreshing(true)
@@ -77,19 +75,19 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
                 </TouchableOpacity>
             </View>
             <Modal
-                animationType="fade"
+                animationType='fade'
                 transparent={true}
                 visible={deleteModalShow}
                 onRequestClose={() => { }}>
                 <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
                     <TouchableOpacity onPress={() => { setDeleteModalShow(false) }} style={{ position: 'absolute', opacity: 0.2, backgroundColor: 'black', flex: 1, height: '100%', width: '100%' }}>
                     </TouchableOpacity>
-                    <View style={{ opacity: 1, backgroundColor: 'white', padding: 25, borderRadius: 10, ...styles.shadow }}>
-                        <Text style={{ textAlign: 'center', fontSize: 16 }}>Are you sure want to delete{'\n'}selected note ?</Text>
+                    <View style={{ opacity: 1, backgroundColor: 'white', paddingHorizontal: 30, paddingVertical: 20, borderRadius: 10, ...styles.shadow }}>
+                        <Text style={{ textAlign: 'center', color: 'black', fontSize: 16 }}>Are you sure want to delete{'\n'}selected note ?</Text>
                         <Gap h={20} />
                         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-                            <TouchableOpacity onPress={() => deleteAction()}><Text style={{ color: 'red', fontWeight: '800' }}>Yes</Text></TouchableOpacity>
-                            <TouchableOpacity onPress={() => setDeleteModalShow(false)}><Text>No</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={() => deleteAction()}><Text style={{ color: 'red', fontWeight: '800', padding: 10, fontSize: 16 }}>Yes</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={() => setDeleteModalShow(false)}><Text style={{ padding: 10, fontSize: 16 }}>No</Text></TouchableOpacity>
                         </View>
                     </View>
                 </View>
