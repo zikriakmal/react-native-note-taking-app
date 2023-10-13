@@ -6,7 +6,7 @@ import BottomSheet from "../../components/molecules/BottomSheet";
 import { colors } from "../../utils/constants";
 import styles from "./styles";
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { checkAuthExist, checkPasswordExist, createAuth, createAuthTable } from "../../services/auth.service";
+import { checkAuthExist, checkPasswordExist, createAuth, createAuthTable, getPasswordFromBio } from "../../services/auth.service";
 import CryptoJS from "crypto-js";
 import { useDispatch } from "react-redux"
 import { setAuth } from "../../redux/reducers/authReducer";
@@ -20,18 +20,19 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
     const [password, setPassword] = useState<string>('');
     const [hasPassword, setHasPassword] = useState<boolean>(true);
     const [firstTimePw, setFirstTimePw] = useState<string>('');
-
     const navigationUse = useNavigation<any>();
-    // const rnBiometrics = new ReactNativeBiometrics()
+
+
+    const rnBiometrics = new ReactNativeBiometrics()
 
     const checkPassword = () => {
-        checkPasswordExist({ password: CryptoJS.SHA256(password).toString(), type: !isBiometric ? 'password' : 'biometric' }).then((dt) => {
-            console.log(dt, 'dtnya');
+        const hashedPassword = CryptoJS.SHA256(password).toString();
+        checkPasswordExist({ password: hashedPassword, type: !isBiometric ? 'password' : 'biometric' }).then((dt) => {
             if (dt <= 0) setIsError(true);
             else {
                 setIsModalActive(false);
                 setIsError(false);
-                dispatch(setAuth({ secret: password }))
+                dispatch(setAuth({ secret: hashedPassword }))
                 navigationUse.reset({ index: 0, routes: [{ name: 'HomeScreen' }] });
             }
         })
@@ -40,16 +41,35 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
     const createPassword = () => {
         createAuth({ password: CryptoJS.SHA256(firstTimePw).toString(), type: 'password' }).then(() => {
             setHasPassword(true);
+            biometricLogin();
         })
     }
 
     useEffect(() => {
         createAuthTable().then(() => {
-            checkAuthExist({ type: 'password' }).
-                then((dt: number) => { setHasPassword(dt > 0) }).
-                catch((e) => { console.log(e) });
+            checkAuthExist({ type: 'password' }).then((dt: number) => {
+                setHasPassword(dt > 0)
+            }).catch((e) => { console.log(e) });
         });
     }, [])
+
+    const biometricLogin = () => {
+        rnBiometrics.simplePrompt({ promptMessage: 'Confirm fingerprint' })
+            .then((resultObject) => {
+                const { success } = resultObject
+                getPasswordFromBio().then((dt) => {
+                    dispatch(setAuth({ secret: dt?.[0]?.password }))
+                });
+                if (success) {
+                    navigationUse.reset({ index: 0, routes: [{ name: 'HomeScreen' }] });
+                } else {
+                    console.log('user cancelled biometric prompt')
+                }
+            })
+            .catch(() => {
+                console.log('biometrics failed')
+            })
+    }
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -63,7 +83,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.logoTextTitle}>Znote App</Text>
                 <Text style={styles.logoTextSubtitle}>write your note easily !</Text>
                 <TouchableOpacity style={styles.btnMainContainer} onPress={() => setIsModalActive(true)} >
-                    <Text style={styles.btnMainTextContainer}>Getting Started</Text>
+                    <Text style={styles.btnMainTextContainer}>GETTING STARTED</Text>
                 </TouchableOpacity>
             </View>
             {/* first time password */}
@@ -100,10 +120,10 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                         <View style={styles.bodyContainer} >
                             <Text style={styles.textTitle}>Authenticate using biometrics</Text>
                             <View style={{ flexDirection: 'column', alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-                                <View>
+                                <TouchableOpacity onPress={() => { biometricLogin() }}>
                                     <Image source={require('../../assets/images/biometrics.png')} style={styles.imageContainer} />
                                     <Text style={{ textAlign: 'center', color: 'red' }}>{isError ? 'failed to authenticate' : ''}</Text>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                             <View>
                                 <Text style={{ ...styles.textTitle, textAlign: 'center' }}>OR</Text>
@@ -136,7 +156,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                                 <Gap h={10} />
                                 <Text style={{ ...styles.textTitle, textAlign: 'center' }}>OR</Text>
                                 <Gap h={10} />
-                                <TouchableOpacity style={styles.btnContainer} onPress={() => { setIsBiometric(true); setIsError(false); setPassword('') }} >
+                                <TouchableOpacity style={styles.btnContainer} onPress={() => { setIsBiometric(true); setIsError(false); setPassword(''); biometricLogin(); }} >
                                     <Text style={styles.btnText}>USING BIOMETRIC</Text>
                                 </TouchableOpacity>
                             </View>

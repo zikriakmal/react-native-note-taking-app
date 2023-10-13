@@ -70,4 +70,20 @@ const checkPasswordExist = async ({
   });
 };
 
-export {createAuth, createAuthTable, checkAuthExist, checkPasswordExist};
+const getPasswordFromBio = async () => {
+  return new Promise((resolve: (value: any) => void, reject) => {
+    db.executeSql(
+      'SELECT password FROM auth',
+      [],
+      (result: any) => {
+        resolve(result.rows.raw());
+      },
+      error => {
+        reject(error);
+      },
+    );
+  });
+};
+
+
+export {createAuth, createAuthTable, checkAuthExist, checkPasswordExist, getPasswordFromBio};

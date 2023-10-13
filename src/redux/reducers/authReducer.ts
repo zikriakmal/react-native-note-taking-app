@@ -7,7 +7,7 @@ export interface Auth {
 const auth = createSlice({
   name: 'noteList',
   initialState: {
-    auth: {} as Auth,
+    auth: {secret: ''} as Auth,
     loading: false,
     isSuccess: false,
   },

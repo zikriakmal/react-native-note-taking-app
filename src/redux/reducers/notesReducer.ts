@@ -4,7 +4,7 @@ export interface Notes {
   id: number;
   note: string;
   subnote: string;
-  datetime: string;
+  date: string;
 }
 
 const noteList = createSlice({
