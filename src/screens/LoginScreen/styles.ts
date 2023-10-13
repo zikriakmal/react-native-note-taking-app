@@ -1,5 +1,5 @@
-import {Dimensions, StyleSheet} from 'react-native';
-import {colors} from '../../utils/constants';
+import { Dimensions, StyleSheet } from 'react-native';
+import { colors } from '../../utils/constants';
 
 const styles = StyleSheet.create({
   logoTextTitle: {marginTop: 10, fontSize: 18, fontWeight: '600'},

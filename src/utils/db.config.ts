@@ -4,4 +4,4 @@ const db = SQLite.openDatabase( {name: 'mydb', location: 'default'}, () => { con
   error => console.log('Database error', error), //on error
 );
 
-export {db};
+export { db };

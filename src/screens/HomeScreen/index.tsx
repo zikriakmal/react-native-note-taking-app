@@ -2,13 +2,13 @@
 import CryptoJS from "crypto-js";
 import { useEffect, useState } from "react";
 import { Image, Modal, RefreshControl, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import Gap from "../../components/atoms/Gap";
+import { setNotes } from "../../redux/reducers/notesReducer";
+import { RootState } from "../../redux/store";
 import { deleteNote, listNotes } from "../../services/notes.service";
 import { colors } from "../../utils/constants";
 import styles from "./styles";
-import Gap from "../../components/atoms/Gap";
-import { RootState } from "../../redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { setNotes } from "../../redux/reducers/notesReducer";
 
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {

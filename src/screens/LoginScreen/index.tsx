@@ -1,16 +1,16 @@
+import { useNavigation } from "@react-navigation/native";
+import CryptoJS from "crypto-js";
 import { useEffect, useState } from "react";
 import { Image, Modal, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 import Gap from "../../components/atoms/Gap";
 import BottomSheet from "../../components/molecules/BottomSheet";
+import { setAuth } from "../../redux/reducers/authReducer";
+import { checkAuthExist, checkPasswordExist, createAuth, createAuthTable, getPasswordFromBio } from "../../services/auth.service";
 import { colors } from "../../utils/constants";
 import styles from "./styles";
-import ReactNativeBiometrics from 'react-native-biometrics';
-import { checkAuthExist, checkPasswordExist, createAuth, createAuthTable, getPasswordFromBio } from "../../services/auth.service";
-import CryptoJS from "crypto-js";
-import { useDispatch } from "react-redux"
-import { setAuth } from "../../redux/reducers/authReducer";
-import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }: { navigation: any }) => {
     const dispatch = useDispatch();
@@ -82,7 +82,7 @@ const LoginScreen = ({ navigation }: { navigation: any }) => {
                 <Image source={require('../../assets/images/logo.png')} style={styles.logoImage} />
                 <Text style={styles.logoTextTitle}>Znote App</Text>
                 <Text style={styles.logoTextSubtitle}>write your note easily !</Text>
-                <TouchableOpacity style={styles.btnMainContainer} onPress={() => setIsModalActive(true)} >
+                <TouchableOpacity style={styles.btnMainContainer} onPress={() => { setIsModalActive(true); if (isBiometric) biometricLogin() }} >
                     <Text style={styles.btnMainTextContainer}>GETTING STARTED</Text>
                 </TouchableOpacity>
             </View>

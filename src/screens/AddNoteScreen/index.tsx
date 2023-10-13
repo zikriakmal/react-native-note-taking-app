@@ -1,12 +1,12 @@
-import { SafeAreaView, ScrollView, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Modal } from "react-native";
-import styles from "./styles";
-import { useEffect, useState } from "react";
-import { colors } from "../../utils/constants";
 import CryptoJS from 'crypto-js';
-import { createNote, listNotes, updateNotes } from "../../services/notes.service";
+import { useState } from "react";
+import { ActivityIndicator, Modal, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setNotes } from "../../redux/reducers/notesReducer";
 import { RootState } from "../../redux/store";
+import { createNote, listNotes, updateNotes } from "../../services/notes.service";
+import { colors } from "../../utils/constants";
+import styles from "./styles";
 
 const AddNoteScreen = ({ route, navigation }: { route: any, navigation: any }) => {
     const [note, setNote] = useState<string>(route.params?.note ?? '')

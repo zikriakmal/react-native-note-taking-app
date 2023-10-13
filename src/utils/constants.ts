@@ -3,4 +3,4 @@ const colors = {
   secondary: '#586CF5',
 };
 
-export {colors};
+export { colors };

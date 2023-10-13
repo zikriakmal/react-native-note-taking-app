@@ -1,4 +1,4 @@
-import {db} from '../utils/db.config';
+import { db } from '../utils/db.config';
 
 const createAuthTable = async () => {
   db.executeSql(
@@ -86,4 +86,4 @@ const getPasswordFromBio = async () => {
 };
 
 
-export {createAuth, createAuthTable, checkAuthExist, checkPasswordExist, getPasswordFromBio};
+export { checkAuthExist, checkPasswordExist, createAuth, createAuthTable, getPasswordFromBio };

@@ -1,4 +1,4 @@
-import {db} from '../utils/db.config';
+import { db } from '../utils/db.config';
 
 const createNotesTable = () => {
   db.executeSql(
@@ -80,4 +80,4 @@ const deleteNote = async ({id}: {id: number}) => {
   });
 };
 
-export {createNotesTable, createNote, updateNotes, listNotes, deleteNote};
+export { createNote, createNotesTable, deleteNote, listNotes, updateNotes };

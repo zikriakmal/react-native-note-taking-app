@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {colors} from '../../utils/constants';
+import { StyleSheet } from 'react-native';
+import { colors } from '../../utils/constants';
 
 const styles = StyleSheet.create({
   backgroundContainer: {position: 'absolute', top: 0},
