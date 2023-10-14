@@ -15,11 +15,13 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import { createNotesTable } from './src/services/notes.service';
 import { colors } from './src/utils/constants';
+import SplashScreen from 'react-native-splash-screen';
 
 const Stack = createNativeStackNavigator();
 function App(): JSX.Element {
   useEffect(() => {
     createNotesTable();
+    SplashScreen.hide();
   }, [])
   return (
     <ReduxProvider store={store}>
